@@ -60,6 +60,51 @@ WINL =1080
 WINH =720
 Win = np.zeros((WINH,WINL),np.uint8)
 
+
+# INIT BLOB TEST
+# Setup SimpleBlobDetector parameters.
+params = cv2.SimpleBlobDetector_Params()
+detector = cv2.SimpleBlobDetector()
+
+# Change thresholds
+params.minThreshold = 10
+params.maxThreshold = 1000
+#filter by color
+params.filterByColor=True
+params.blobColor = 255
+
+# Filter by Area.
+params.filterByArea = True
+
+params.minArea = 1500
+
+# Filter by Circularity
+params.filterByCircularity = True
+params.minCircularity = 0.1
+
+
+# Filter by Convexity
+params.filterByConvexity = True
+
+params.minConvexity = 0.87
+
+# Filter by Inertia
+params.filterByInertia = True
+
+params.minInertiaRatio = 0.01
+
+
+
+# Create a detector with the parameters
+
+ver = (cv2.__version__).split('.')
+
+if int(ver[0]) < 3:
+    detector = cv2.SimpleBlobDetector(params)
+else:
+    detector = cv2.SimpleBlobDetector_create(params)
+
+
 while True:
     frames = listener.waitForNewFrame()
     
@@ -92,13 +137,21 @@ while True:
     Thresh2 = 2000
     im = depth.asarray(dtype=np.float32)
 
+
+    #keypoints = detector.detect(im)
+    #out_im = np.array([])
+    #im_key = cv2.drawKeypoints(im, keypoints, out_im, color=(0, 255, 23)
+    #                           , flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
+    
+    #cv2.imshow("out", out_im)
     #tl,br = (0,0),(170,170)
     #Win = cv2.rectangle(Win,tl,br,(0,244,0),15)
 
     buz1 = []
     buz2 = []
     buz3 = []
-
+    Range = []
 
     # for x in range(0,512): # row = 512
     #     for y in range(0,141): # col = 424
@@ -107,12 +160,19 @@ while True:
     #         buz1[x][y+282] = im[x][y+282]
     # print(len(im))
     # values of 0 , 1, 2 for depth 
-    bins = [500,1000,1500,2000,2500,3000,3500,4000]
+    bins = [100,1200,2000,2800,3600]
+    c = 0
     for R in im:
         inds = np.digitize(R,bins)
-        inds = inds/(len(bins)-1)
-        
-            
+        inds = 1- (1/inds)
+        print(inds)
+        #inds = inds/(len(bins)-1)
+        if c > 200  and c < 250:
+            Range.append(inds[200:340])
+            #print(np.argmax( inds[200:340]))
+            #cv2.imshow("indSection",inds)   
+        #exit(1)
+        c+= 1    
         buz1.append( inds[0:170]  )
         buz2.append ( inds[170:340] )
         buz3.append( inds[340:510])
@@ -121,7 +181,7 @@ while True:
     avgs.append( np.average(buz2) )
     avgs.append( np.average(buz3) )
 
-    # print(np.argmin(avgs))
+    #print(np.argmin(avgs))
         # buz1.append( R[0:170]  )
         # buz2.append ( R[170:340] )
         # buz3.append( R[340:510])
@@ -129,6 +189,8 @@ while True:
     buz1 = np.asarray(buz1,dtype=np.float32)
     buz2 = np.asarray(buz2,dtype=np.float32)
     buz3 = np.asarray(buz3,dtype=np.float32)
+
+    Range = np.asarray(Range,dtype=np.float32)
     #print(type(buz1))
     
    # print(buz1,buz2,buz3)
@@ -166,10 +228,12 @@ while True:
     #         else:
     #             im[r][w] = 0
     #cv2.imshow("MAINWINDOW",Win)
-    cv2.imshow("poop", im)
+    #cv2.imshow("poop", im)
+    cv2.imshow("Range",Range)
     cv2.imshow("b1",buz1)
     cv2.imshow("b2",buz2)
     cv2.imshow("b3",buz3)
+    #cv2.imshow("keypts", im_key)
     s = cv2.waitKey(delay =1)
     if s == ord('s'):
         with open('image.data',"w+") as f:
