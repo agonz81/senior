@@ -2,42 +2,38 @@ import cv2
 import numpy as np
 
 
-im = cv2.imread("test1.png",cv2.IMREAD_GRAYSCALE)
+im = cv2.imread("test43.jpg",cv2.IMREAD_COLOR)
 
-
-
-cv2.imshow("before",im)
-
+# edges = cv2.Canny(im,100,200)
+# cv2.imshow("Canny",edges)
 # Setup SimpleBlobDetector parameters.
 params = cv2.SimpleBlobDetector_Params()
-detector = cv2.SimpleBlobDetector()
 
 # Change thresholds
-params.minThreshold = 10
-params.maxThreshold = 1000
+params.minThreshold = 50
+params.maxThreshold = 2000
 #filter by color
 params.filterByColor=True
-params.blobColor = 255
+params.blobColor =0
 
 # Filter by Area.
-params.filterByArea = True
+params.filterByArea = False
 
-params.minArea = 1500
+#params.minArea = 3000
 
 # Filter by Circularity
 params.filterByCircularity = True
-params.minCircularity = 0.1
+params.minCircularity = 0.01
 
 
 # Filter by Convexity
-params.filterByConvexity = True
-
-params.minConvexity = 0.87
+params.filterByConvexity = False
+#params.minConvexity = 0.87
 
 # Filter by Inertia
-params.filterByInertia = True
+params.filterByInertia = False
 
-params.minInertiaRatio = 0.01
+#params.minInertiaRatio = 0.01
 
 
 
@@ -55,6 +51,8 @@ out_im = np.array([])
 im_key = cv2.drawKeypoints(im, keypoints, out_im, color=(0, 255, 23)
                            , flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
+print(len(im_key))
+cv2.imshow("image1",im)
 cv2.imshow("keypts", im_key)
 #cv2.imshow("out", out_im)
 

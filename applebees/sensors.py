@@ -73,20 +73,20 @@ params.minThreshold = 10
 params.maxThreshold = 1000
 #filter by color
 params.filterByColor=True
-params.blobColor = 255
+params.blobColor = 0
 
 # Filter by Area.
-params.filterByArea = True
+params.filterByArea = False
 
 params.minArea = 1500
 
 # Filter by Circularity
-params.filterByCircularity = True
+params.filterByCircularity = False
 params.minCircularity = 0.1
 
 
 # Filter by Convexity
-params.filterByConvexity = True
+params.filterByConvexity = False
 
 params.minConvexity = 0.87
 
@@ -148,25 +148,21 @@ while True:
     Thresh2 = 2000
     im = depth.asarray(dtype=np.float32)
     curFrame = im
-    if not first:
+    #if not first:
         # print(cv2.subtract(curFrame, prevFrame))
-        x = curFrame-prevFrame
-        sum = 0
-        for r in x:
-            sum += r
+        #x = curFrame-prevFrame
+        #sum = 0
+        #for r in x:
+        #    sum += r
 
-        print(sum)
+       # print(sum)
 
         # if curFrame - prevFrame > 0:
         #     print("Significant")
         # else:
         #     print("very similar")
-    else:
-        first = False
-    #keypoints = detector.detect(im)
-    #out_im = np.array([])
-    #im_key = cv2.drawKeypoints(im, keypoints, out_im, color=(0, 255, 23)
-    #                           , flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    #else:
+        #first = False
 
     
     #cv2.imshow("out", out_im)
@@ -242,7 +238,7 @@ while True:
             #     im[r][w] = 1
             # else:
             #     im[r][w] = 0
-            
+
 
     # for r in range(0,424,3):
     #     for w in range(0,170,3):
@@ -261,6 +257,12 @@ while True:
     #             im[r][w] = 0
     #cv2.imshow("MAINWINDOW",Win)
     #cv2.imshow("im", im)
+    keypoints = detector.detect(im)
+    out_im = np.array([])
+    im_key = cv2.drawKeypoints(im, keypoints, out_im, color=(0, 255, 23)
+                               , flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
+    cv2.imshoww("keypts",im_key)
     cv2.imshow("realPOOP",poop)
     #write_im = cv2.imread(poop,0)
     cv2.imwrite("Frames/test"+str(imCount)+'.jpg',poop*255)
