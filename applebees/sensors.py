@@ -9,6 +9,8 @@ import time
 from pylibfreenect2 import Freenect2, SyncMultiFrameListener
 from pylibfreenect2 import FrameType, Registration, Frame
 
+import glob
+
 try:
     from pylibfreenect2 import OpenGLPacketPipeline
     pipeline = OpenGLPacketPipeline()
@@ -103,8 +105,17 @@ if int(ver[0]) < 3:
     detector = cv2.SimpleBlobDetector(params)
 else:
     detector = cv2.SimpleBlobDetector_create(params)
-
-
+# for file saving
+imCount = 0
+files = glob.glob("/Frames/*")
+for f in files:
+    try:
+        f.unlink()
+    except OSError as e:
+        print("Error: %s : %s" % (f,e.streeror))
+curFrame = []
+prevFrame = []
+first = True
 while True:
     frames = listener.waitForNewFrame()
     
@@ -136,8 +147,22 @@ while True:
     Thresh1 = 1000
     Thresh2 = 2000
     im = depth.asarray(dtype=np.float32)
+    curFrame = im
+    if not first:
+        # print(cv2.subtract(curFrame, prevFrame))
+        x = curFrame-prevFrame
+        sum = 0
+        for r in x:
+            sum += r
 
+        print(sum)
 
+        # if curFrame - prevFrame > 0:
+        #     print("Significant")
+        # else:
+        #     print("very similar")
+    else:
+        first = False
     #keypoints = detector.detect(im)
     #out_im = np.array([])
     #im_key = cv2.drawKeypoints(im, keypoints, out_im, color=(0, 255, 23)
@@ -152,6 +177,7 @@ while True:
     buz2 = []
     buz3 = []
     Range = []
+    poop = []
 
     # for x in range(0,512): # row = 512
     #     for y in range(0,141): # col = 424
@@ -160,22 +186,24 @@ while True:
     #         buz1[x][y+282] = im[x][y+282]
     # print(len(im))
     # values of 0 , 1, 2 for depth 
-    bins = [100,1200,2000,2800,3600]
+    bins = [.5,1200,2000,2800,3600]
     c = 0
     for R in im:
         inds = np.digitize(R,bins)
-        inds = 1- (1/inds)
-        print(inds)
-        #inds = inds/(len(bins)-1)
-        if c > 200  and c < 250:
-            Range.append(inds[200:340])
-            #print(np.argmax( inds[200:340]))
-            #cv2.imshow("indSection",inds)   
+        # inds = 1- (1/inds)
+        # print(inds)
+        inds = inds/(len(bins))
+        #poop.append(inds)
+        if c > 200  and c < 210:
+            Range.append(inds[200:220])
+            # print(Range)
+            
         #exit(1)
         c+= 1    
         buz1.append( inds[0:170]  )
         buz2.append ( inds[170:340] )
         buz3.append( inds[340:510])
+        poop.append( inds )
     avgs = []
     avgs.append( np.average(buz1) )
     avgs.append( np.average(buz2) )
@@ -189,7 +217,11 @@ while True:
     buz1 = np.asarray(buz1,dtype=np.float32)
     buz2 = np.asarray(buz2,dtype=np.float32)
     buz3 = np.asarray(buz3,dtype=np.float32)
+    #poop = np.asarray(poop,dtype=np.uint8)
 
+    poop = np.asarray(poop,dtype=np.float32)
+    #print(poop)
+    
     Range = np.asarray(Range,dtype=np.float32)
     #print(type(buz1))
     
@@ -228,11 +260,17 @@ while True:
     #         else:
     #             im[r][w] = 0
     #cv2.imshow("MAINWINDOW",Win)
-    #cv2.imshow("poop", im)
-    cv2.imshow("Range",Range)
-    cv2.imshow("b1",buz1)
-    cv2.imshow("b2",buz2)
-    cv2.imshow("b3",buz3)
+    #cv2.imshow("im", im)
+    cv2.imshow("realPOOP",poop)
+    #write_im = cv2.imread(poop,0)
+    cv2.imwrite("Frames/test"+str(imCount)+'.jpg',poop*255)
+    #cv2.imshow("Range",Range)
+    #cv2.imshow("b1",buz1)
+    #cv2.imshow("b2",buz2)
+    #cv2.imshow("b3",buz3)
+
+    prevFrame = curFrame
+    imCount+=1
     #cv2.imshow("keypts", im_key)
     s = cv2.waitKey(delay =1)
     if s == ord('s'):
