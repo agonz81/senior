@@ -69,31 +69,31 @@ params = cv2.SimpleBlobDetector_Params()
 detector = cv2.SimpleBlobDetector()
 
 # Change thresholds
-params.minThreshold = 10
-params.maxThreshold = 1000
+params.minThreshold = 50
+params.maxThreshold = 2000
 #filter by color
 params.filterByColor=True
 params.blobColor = 0
 
 # Filter by Area.
-params.filterByArea = False
+#params.filterByArea = False
 
-params.minArea = 1500
+#params.minArea = 1500
 
 # Filter by Circularity
 params.filterByCircularity = False
-params.minCircularity = 0.1
+#params.minCircularity = 0.1
 
 
 # Filter by Convexity
 params.filterByConvexity = False
 
-params.minConvexity = 0.87
+#params.minConvexity = 0.87
 
 # Filter by Inertia
-params.filterByInertia = True
+params.filterByInertia = False
 
-params.minInertiaRatio = 0.01
+#params.minInertiaRatio = 0.01
 
 
 
@@ -257,12 +257,13 @@ while True:
     #             im[r][w] = 0
     #cv2.imshow("MAINWINDOW",Win)
     #cv2.imshow("im", im)
-    keypoints = detector.detect(im)
+    imblob = (poop*255).astype('uint8')
+    keypoints = detector.detect(imblob)
     out_im = np.array([])
-    im_key = cv2.drawKeypoints(im, keypoints, out_im, color=(0, 255, 23)
-                               , flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    im_key = cv2.drawKeypoints(imblob, keypoints, out_im, color=(0, 255, 55),
+                               flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
-    cv2.imshoww("keypts",im_key)
+    cv2.imshow("keypts",im_key)
     cv2.imshow("realPOOP",poop)
     #write_im = cv2.imread(poop,0)
     cv2.imwrite("Frames/test"+str(imCount)+'.jpg',poop*255)
