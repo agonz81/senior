@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-im = cv2.imread("test43.jpg",cv2.IMREAD_COLOR)
+im = cv2.imread("Frames/test0.jpg",cv2.IMREAD_COLOR)
 
 # edges = cv2.Canny(im,100,200)
 # cv2.imshow("Canny",edges)
