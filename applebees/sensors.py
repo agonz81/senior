@@ -10,6 +10,8 @@ from pylibfreenect2 import Freenect2, SyncMultiFrameListener
 from pylibfreenect2 import FrameType, Registration, Frame
 
 import glob
+import threading
+import RPi.GPIO as GPIO
 
 try:
     from pylibfreenect2 import OpenGLPacketPipeline
@@ -22,6 +24,25 @@ except:
         from pylibfreenect2 import CpuPacketPipeline
         pipeline = CpuPacketPipeline()
 print("Packet pipeline:", type(pipeline).__name__)
+
+
+# def callback_one(output_pin_one, a):
+#     print("First callback")
+
+# def callback_two(output_pin_two, b):
+#     print("second callback")
+
+# a = 1
+
+
+# output_pin_one = 18
+# output_pin_two = 12
+# GPIO.setmode(GPIO.BCM)
+# GPIO.setup(output_pin_one, GPIO.OUT, initial=GPIO.HIGH)
+# GPIO.setup(output_pin_two, GPIO.OUT, initial=GPIO.HIGH)
+# GPIO.add_event_callback(output_pin_one, callback_one)
+# GPIO.add_event_callback(output_pin_two, callback_two)
+
 
 enable_rgb = True
 enable_depth = True
@@ -70,7 +91,7 @@ detector = cv2.SimpleBlobDetector()
 
 # Change thresholds
 params.minThreshold = 50
-params.maxThreshold = 2000
+params.maxThreshold = 1000
 #filter by color
 params.filterByColor=True
 params.blobColor = 0
@@ -96,6 +117,22 @@ params.filterByInertia = False
 #params.minInertiaRatio = 0.01
 
 
+buzztime1 = 1
+buzztime2 = 1
+buzztime3 = 1
+#temporarily recalling every buzztime*20 bc it spams print for now
+def buzz1():
+    threading.Timer(buzztime1*5, buzz1).start()
+    print("buzz1: ", buzztime1)
+def buzz2():
+    threading.Timer(buzztime2*5, buzz2).start()
+    #print("buzz2: ", buzztime2)
+def buzz3():
+    threading.Timer(buzztime3*5, buzz3).start()
+    #print("buzz3: ", buzztime3)
+buzz1()
+buzz2()
+buzz3()
 
 # Create a detector with the parameters
 
@@ -107,7 +144,7 @@ else:
     detector = cv2.SimpleBlobDetector_create(params)
 # for file saving
 imCount = 0
-files = glob.glob("/Frames/*")
+files = glob.glob("/Frames1/*")
 for f in files:
     try:
         f.unlink()
@@ -116,6 +153,7 @@ for f in files:
 curFrame = []
 prevFrame = []
 first = True
+saving_frame = False
 while True:
     frames = listener.waitForNewFrame()
     
@@ -175,7 +213,7 @@ while True:
     Range = []
     poop = []
 
-    # for x in range(0,512): # row = 512
+    # for x in range(0,512,6): # row = 512
     #     for y in range(0,141): # col = 424
     #         buz1[x][y] = im[x][y]
     #         buz1[x][y+141] = im[x][y+141]
@@ -196,14 +234,63 @@ while True:
             
         #exit(1)
         c+= 1    
-        buz1.append( inds[0:170]  )
-        buz2.append ( inds[170:340] )
-        buz3.append( inds[340:510])
+        buz1.append( inds[0:169]  )
+        buz2.append ( inds[170:339] )
+        buz3.append( inds[340:509])
         poop.append( inds )
-    avgs = []
-    avgs.append( np.average(buz1) )
-    avgs.append( np.average(buz2) )
-    avgs.append( np.average(buz3) )
+    # avgs = []
+    # avgs.append( np.average(buz1) )
+    # avgs.append( np.average(buz2) )
+    # avgs.append( np.average(buz3) )
+    minbuzz1 = 2
+    minbuzz2 = 2
+    minbuzz3 = 2
+    # print(len(buz1))
+    # exit(1)
+    for x in range(0,424,10):
+        for y in range(0,169,10):
+            # print(x,y)
+            if (buz1[x][y] != 0):
+                minbuzz1 = min(buz1[x][y],minbuzz1)
+            if (buz2[x][y] != 0):
+                minbuzz2 = min(buz2[x][y],minbuzz2)   
+            if (buz3[x][y] != 0):
+                minbuzz3 = min(buz3[x][y],minbuzz3)     
+            if(minbuzz1 == .2 and minbuzz2 == .2 and minbuzz3 == .2):
+                break
+    
+    if minbuzz1 == 0.2:
+        buzztime1 = 1/16
+    if minbuzz2 == 0.2:
+        buzztime2 = 1/16
+    if minbuzz3 == 0.2:
+        buzztime3 = 1/16
+    if minbuzz1 == 0.4:
+        buzztime1 = 1/8
+    if minbuzz2 == 0.4:
+        buzztime2 = 1/8
+    if minbuzz3 == 0.4:
+        buzztime3 = 1/8
+    if minbuzz1 == 0.6:
+        buzztime1 = 1/4
+    if minbuzz2 == 0.6:
+        buzztime2 = 1/4
+    if minbuzz3 == 0.6:
+        buzztime3 = 1/4
+    if minbuzz1 == 0.8:
+        buzztime1 = 1/2
+    if minbuzz2 == 0.8:
+        buzztime2 = 1/2
+    if minbuzz3 == 0.8:
+        buzztime3 = 1/2
+    if minbuzz1 == 1:
+        buzztime1 = 1
+    if minbuzz2 == 1:
+        buzztime2 = 1
+    if minbuzz3 == 1:
+        buzztime3 = 1
+    #print(minbuzz1,minbuzz2,minbuzz3)
+
 
     #print(np.argmin(avgs))
         # buz1.append( R[0:170]  )
@@ -257,65 +344,73 @@ while True:
     #             im[r][w] = 0
     #cv2.imshow("MAINWINDOW",Win)
     #cv2.imshow("im", im)
-    imblob = (poop*255).astype('uint8')
-    keypoints = detector.detect(imblob)
-    out_im = np.array([])
-    im_key = cv2.drawKeypoints(imblob, keypoints, out_im, color=(0, 255, 55),
-                               flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    # imblob = (poop*255).astype('uint8')
+    # keypoints = detector.detect(imblob)
+    # out_im = np.array([])
+    # im_key = cv2.drawKeypoints(imblob, keypoints, out_im, color=(0, 255, 55),
+    #                            flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
-    cv2.imshow("keypts",im_key)
-    cv2.imshow("realPOOP",poop)
+    # cv2.imshow("keypts",im_key)
+    # cv2.imshow("realPOOP",poop)
     #write_im = cv2.imread(poop,0)
-    cv2.imwrite("Frames/test"+str(imCount)+'.jpg',poop*255)
+    if saving_frame:
+        cv2.imwrite("Frames1/test"+str(imCount)+'.jpg',poop*255)
+        print("saving frame",imCount)
     #cv2.imshow("Range",Range)
-    #cv2.imshow("b1",buz1)
-    #cv2.imshow("b2",buz2)
-    #cv2.imshow("b3",buz3)
+    cv2.imshow("b1",buz1)
+    cv2.imshow("b2",buz2)
+    cv2.imshow("b3",buz3)
 
     prevFrame = curFrame
     imCount+=1
     #cv2.imshow("keypts", im_key)
     s = cv2.waitKey(delay =1)
     if s == ord('s'):
-        with open('image.data',"w+") as f:
+        #saving_frame = True
 
-            im = depth.asarray(dtype =np.float32)
+        if not saving_frame :
+            saving_frame = True
+        else:
+            saving_frame = False
+        # with open('image.data',"w+") as f:
+
+        #     im = depth.asarray(dtype =np.float32)
            
-            # f.write(f"h = {len(im)} , w = {len(im[1])}\n")
-            #for i in  im:
-            #    f.write(str(i) + "\n")
-                #print(i)
-           #f.write("---------------\n")
-            imC = color.asarray()
-            # f.write(f"h = {len(imC)} , w = {len(imC[1])}\n")
-            # for i in imC:
-            #     f.write(str(i) + "\n")
-            #      #print(i)
-            #print(len(im),len(im[1]))
-        # print(im)
-        Thresh1 = 300
-        Thresh2 = 500
+        #     # f.write(f"h = {len(im)} , w = {len(im[1])}\n")
+        #     #for i in  im:
+        #     #    f.write(str(i) + "\n")
+        #         #print(i)
+        #    #f.write("---------------\n")
+        #     imC = color.asarray()
+        #     # f.write(f"h = {len(imC)} , w = {len(imC[1])}\n")
+        #     # for i in imC:
+        #     #     f.write(str(i) + "\n")
+        #     #      #print(i)
+        #     #print(len(im),len(im[1]))
+        # # print(im)
+        # Thresh1 = 300
+        # Thresh2 = 500
 
         
-        for r in range(424):
-            for w in range(512):
-                if im[r][w] > Thresh1 and im[r][w] < Thresh2:
-                    im[r][w] = 203
-                else:
-                    im[r][w] = 0
+        # for r in range(424):
+        #     for w in range(512):
+        #         if im[r][w] > Thresh1 and im[r][w] < Thresh2:
+        #             im[r][w] = 203
+        #         else:
+        #             im[r][w] = 0
 
                     
             
 
-            # print(r)
-            #for w in r:
-             #   print(w)
+        #     # print(r)
+        #     #for w in r:
+        #      #   print(w)
        
-        cv2.imshow("saved",im / 4500 )
-        cv2.imshow("changed",im/4500)
+        # cv2.imshow("saved",im / 4500 )
+        # cv2.imshow("changed",im/4500)
         
-        #cv2.imshow("saved2",imC)
-        #print(color.asarray())
+        # #cv2.imshow("saved2",imC)
+        # #print(color.asarray())
         
 
     listener.release(frames)
@@ -324,6 +419,7 @@ while True:
     key = cv2.waitKey(delay=1)
     if key == ord('q'):
         break
+
 
 
 device.stop()
