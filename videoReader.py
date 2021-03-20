@@ -5,6 +5,16 @@ import copy
 #import os.path
 def map(value,start1,stop1,start2,stop2):
     return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2
+
+class Cluster():
+
+    def __init__(self,center,clustInds):
+
+        self.Center = center
+        self.IndexList = clustInds
+
+
+
 class VideoRead():
     def __init__(self, path):
 
@@ -210,6 +220,7 @@ class VideoRead():
         total_out_range = 0
         maxRow = 0
         maxCol =0
+        sum_range = 0
 
         for rowcounter, row in enumerate(Filterd_data):
             #print(rowcounter,row)
@@ -219,49 +230,88 @@ class VideoRead():
             colindex = np.where(row ==minimum)[0]
             if(len(colindex) > 0):
                 if(len(colindex) > maxRow):
-                    maxRow = rowcounter
+                    #maxRow = rowcounter
                     avgCol = np.average(colindex)
                 if avgCol > maxCol:
                     maxCol = avgCol
                 All_PTS.append(colindex)
+                sum_range += rowcounter
                 total_of_min += 1
+
             else:
                 All_PTS.append([])
                 total_out_range +=1
 
-        avgRow =int( total_of_min /total_out_range+ total_of_min)
-        print(Filterd_data[maxRow])
-        print(avgRow,maxCol)
-        thickness = 100
+        avgRow = sum_range // (total_of_min )
+        #avgRow =int( total_of_min /total_out_range+ total_of_min)
+
+        space_threshhold_min = 1
+        space_threshhold_max = -5
+        #possible clusters
+        # spaces
+        Clusters = np.array([],dtype = np.uint16)
+        sub_cluster = []
+        last_added = 0
+        #print(len(Clusters))
+        print(Clusters)
+        print(Filterd_data[avgRow])
+        cv2.waitKey(0)
+
+
+
+        for index,col in enumerate(Filterd_data[avgRow]):
+
+            #print(index, col)
+            if col == minimum:
+                print(f"{last_added} - {index} = {last_added - index} | [{space_threshhold_min , space_threshhold_max}]")
+                print(f"{len(sub_cluster)}")
+                if len(sub_cluster) == 0:
+                    #print("FOUND pixel")
+                    sub_cluster.append([index])
+                    print("testing",sub_cluster[len(sub_cluster)-1])
+                    #Clusters = np.append(Clusters,index)
+                    last_added = index
+                #elif (last_added - index) < space_threshhold: # if is the same blob
+                elif (last_added - index) > space_threshhold_min or (last_added - index) > space_threshhold_max: # if is the same blob
+
+                    print(f"INHERE{last_added} - {index} = {last_added- index}")
+                    #Clusters = np.append(Clusters,index,index = )
+                    sub_cluster[len(sub_cluster) -1].append(index)
+                    last_added = index
+
+                elif (last_added - index) >  space_threshhold_max:
+                    sub_cluster.append([index])
+                    last_added = index
+
+
+            print(len(sub_cluster),sub_cluster)
+
+        Clusters = np.append(Clusters, sub_cluster)
+        print(Clusters)
+        cv2.waitKey(0)
+
+
+                #print(avgRow,index)
+
+        #print(Clusters)
+
+        #print(avgRow,maxCol)
+        thickness = 50
         #cv2.imshow("ALLPTS",All_PTS[maxRow -thickness:maxRow+thickness,:])
         cv2.imshow("Filtered",Filterd_data[avgRow -thickness:avgRow+thickness,:])
-        #cv2.waitKey(0)
-        #print(All_PTS[maxRow])
-        #exit(0)
-        pastCOL = 0
-        print(maxRow,maxCol)
-        space_threshhold = 20
 
-        All_PTS =np.asarray(All_PTS)
-        blob1Col = int( np.floor( np.average(All_PTS[maxRow])) )
-        blob1 = (maxRow,blob1Col)
-        #print(blob1,blob1Col)
-        #exit(0)
-        for cnt, row in enumerate(All_PTS):
-            #print(row)
-            for col in row:
-               # print(col)
-                pastCOL = col
+        #All_PTS =np.asarray(All_PTS)
+        blob1 = (int(maxCol),int(avgRow))
 
-                if (  ( col - pastCOL) <space_threshhold):
-                    #print("add / include as 1 blob")
-                    cv2.circle(Filterd_data,blob1,23,(0,0,0),-1)
-                #else:
-                    #print("Might be another blob")
 
-                    # store row , col index
+
+        #cv2.circle(Filterd_data,blob1,23,(0,0,0),-1)
+        cv2.rectangle(Filterd_data,blob1, (blob1[0]+20,blob1[1]+20),(0,0,0),3)
+        #cv2.rectangle(Filterd_data,(256,123), (256+20,123+20),(0,0,0),3)
 
         debug_txt = f"recordthreshold {record}  minVal: {minimum} blob @{blob1}"# record ({x1},{y1}) 2*record({x2},{y2})"
+        #print(Filterd_data.shape)
+        #debug_txt += f"{Filterd_data.shape()}"
         cv2.putText(self.MainIMG, debug_txt, (2, self.Kheight + 30 * 2), self.font, 1, (255, 255, 255), 0)
         #print(minimum)
         #print(Filterd_data)
