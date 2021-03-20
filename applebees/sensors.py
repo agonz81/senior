@@ -116,7 +116,7 @@ params.filterByInertia = False
 
 #params.minInertiaRatio = 0.01
 
-
+"""
 buzztime1 = 1
 buzztime2 = 1
 buzztime3 = 1
@@ -133,7 +133,7 @@ def buzz3():
 buzz1()
 buzz2()
 buzz3()
-
+"""
 # Create a detector with the parameters
 
 ver = (cv2.__version__).split('.')
@@ -289,8 +289,15 @@ while True:
         buzztime2 = 1
     if minbuzz3 == 1:
         buzztime3 = 1
-    #print(minbuzz1,minbuzz2,minbuzz3)
+    print(minbuzz1,minbuzz2,minbuzz3)
 
+                minbuzz1 = min(buz1[x][y],minbuzz1)
+            if (buz2[x][y] != 0):
+                minbuzz2 = min(buz2[x][y],minbuzz2)   
+            if (buz3[x][y] != 0):
+                minbuzz3 = min(buz3[x][y],minbuzz3)     
+            if(minbuzz1 == .2 and minbuzz2 == .2 and minbuzz3 == .2):
+                break
 
     #print(np.argmin(avgs))
         # buz1.append( R[0:170]  )
