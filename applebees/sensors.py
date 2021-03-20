@@ -289,15 +289,15 @@ while True:
         buzztime2 = 1
     if minbuzz3 == 1:
         buzztime3 = 1
-    print(minbuzz1,minbuzz2,minbuzz3)
+    #print(minbuzz1,minbuzz2,minbuzz3)
 
-                minbuzz1 = min(buz1[x][y],minbuzz1)
-            if (buz2[x][y] != 0):
-                minbuzz2 = min(buz2[x][y],minbuzz2)   
-            if (buz3[x][y] != 0):
-                minbuzz3 = min(buz3[x][y],minbuzz3)     
-            if(minbuzz1 == .2 and minbuzz2 == .2 and minbuzz3 == .2):
-                break
+            #     minbuzz1 = min(buz1[x][y],minbuzz1)
+            # if (buz2[x][y] != 0):
+            #     minbuzz2 = min(buz2[x][y],minbuzz2)   
+            # if (buz3[x][y] != 0):
+            #     minbuzz3 = min(buz3[x][y],minbuzz3)     
+            # if(minbuzz1 == .2 and minbuzz2 == .2 and minbuzz3 == .2):
+            #     break
 
     #print(np.argmin(avgs))
         # buz1.append( R[0:170]  )
@@ -361,15 +361,16 @@ while True:
     # cv2.imshow("realPOOP",poop)
     #write_im = cv2.imread(poop,0)
     if saving_frame:
-        cv2.imwrite("Frames1/test"+str(imCount)+'.jpg',poop*255)
-        print("saving frame",imCount)
+        cv2.imwrite("Frames2/"+str(imCount)+'.jpg',poop*255)
+        imCount += 1
+        #print("saving frame",imCount)
     #cv2.imshow("Range",Range)
     cv2.imshow("b1",buz1)
     cv2.imshow("b2",buz2)
     cv2.imshow("b3",buz3)
 
     prevFrame = curFrame
-    imCount+=1
+    #imCount+=1
     #cv2.imshow("keypts", im_key)
     s = cv2.waitKey(delay =1)
     if s == ord('s'):
