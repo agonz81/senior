@@ -122,7 +122,7 @@ buzztime2 = 1
 buzztime3 = 1
 #temporarily recalling every buzztime*20 bc it spams print for now
 def buzz1():
-    threading.Timer(buzztime1*5, buzz1).start()
+    threading.Timer(buzztime1, buzz1).start()
     print("buzz1: ", buzztime1)
 def buzz2():
     threading.Timer(buzztime2*5, buzz2).start()
