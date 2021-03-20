@@ -34,9 +34,9 @@ device = fn.openDevice(serial, pipeline=pipeline)
 
 # enable sensor modules to be in sync w/ each other
 types = 0
-if enable_rgb:
+if E_RGB:
     types |= FrameType.Color
-if enable_depth:
+if E_Depth:
     types |= (FrameType.Ir | FrameType.Depth)
 listener = SyncMultiFrameListener(types)
 #listener = FrameLister(FrameType.Ir | FrameType.Depth)
@@ -56,6 +56,7 @@ if E_Depth:
                                 device.getColorCameraParams())
 
 Undistorted = Frame(512,424,4)
+registerd = Frame(512,424,4)
 # begin recieving new frames
 while True:
 
@@ -68,13 +69,13 @@ while True:
         depth = frames["depth"]
 
     if E_RGB and E_Depth:
-       registration.apply(color, depth, Undistorted)
+       registration.apply(color, depth, Undistorted,registerd)
     elif E_Depth:
         registration.undistortDepth(depth, Undistorted)
 
 
     cv2.imshow("Depth",depth.asarray())
-    cv2.imshow("Undistorted",Undistorted.asarray())
+    cv2.imshow("Undistorted",Undistorted.asarray(np.float32))
 
 
     listener.release(frames)
