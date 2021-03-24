@@ -38,7 +38,7 @@ def ClosestClusterIndex(pixelR, pixelC, clustList):
 
 
 ##################################################################################################################
-def ClusterDetect(image, numRanges, spaceThres, sizeThres, circleSize, circleColor,Pskip):
+def ClusterDetect(image,minPixel ,  spaceThres, sizeThres, circleSize, circleColor,Pskip):  #numRanges,
     copy = np.copy(image)
     # bins = np.linspace(0, 255, numRanges)
     # filterIM = np.digitize(image, bins)
@@ -240,7 +240,7 @@ while True:
     filterIM[filterIM < minPixel] = 0
 
     
-    Result = ClusterDetect(image, numRanges, spaceThres, sizeThres, circleSize,circleColor,Pskip)  # paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor)
+    Result = ClusterDetect(image,minPixel , spaceThres, sizeThres, circleSize,circleColor,Pskip)  #numRanges paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor)
 
     cv2.imshow('OGpic', image)
     cv2.imshow("Og_AfterCluster", Result[0])
