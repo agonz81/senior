@@ -113,17 +113,25 @@ def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circle
          DarkPixelsC = np.concatenate((DarkPixelsC  ,  row) )
 
    #CLUSTER GUESS 
-   pixelCount = 0
-   skip = 2
-   ClosestCluster = 0
-   for r, c in zip(DarkPixelsR, DarkPixelsC):
-      if(pixelCount == skip):
-         pixelCount = 0
-         continue
+   # pixelCount = 0
+   # skip = 2
+   # ClosestCluster = 0
+   # for r, c in zip(DarkPixelsR, DarkPixelsC):
+   #    if(pixelCount == skip):
+   #       pixelCount = 0
+   #       continue
+   #    ClosestCluster = ClosestClusterIndex(r, c, ClusterList)
+   #    ClusterList[ClosestCluster].pixelsR.append(r)
+   #    ClusterList[ClosestCluster].pixelsC.append(c)
+   #    pixelCount += 1
+   for i in range(0,len(DarkPixelsC),10):
+      r = DarkPixelsR[i]
+      c = DarkPixelsC[i]
       ClosestCluster = ClosestClusterIndex(r, c, ClusterList)
       ClusterList[ClosestCluster].pixelsR.append(r)
       ClusterList[ClosestCluster].pixelsC.append(c)
-      pixelCount += 1
+
+
 
    #CLUSTER GUESS UPDATE CIRLES
    for i, cluster in enumerate(ClusterList):
@@ -144,7 +152,7 @@ def main():
    numRanges = 10
    delay = 1
    spaceThres = 20
-   sizeThres = 5000
+   sizeThres = 1000
    circleSize = 15
    circleColor = (255, 0, 0)
 
