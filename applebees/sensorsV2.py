@@ -222,8 +222,7 @@ while True:
     circleColor = (255, 0, 0)
 
     image = depth.asarray()
-    filterIM = ClusterDetect(image, numRanges, spaceThres, sizeThres, circleSize,
-                             circleColor)  # paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor)
+    filterIM = ClusterDetect(image, numRanges, spaceThres, sizeThres, circleSize,circleColor)  # paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor)
     cv2.imshow('OGpic', image)
     cv2.imshow("Og_AfterCluster", filterIM[0])
     print("Cluster LIST" ,filterIM[1])
