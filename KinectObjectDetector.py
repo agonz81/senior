@@ -139,7 +139,7 @@ def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circle
 
 
 def main():
-   path = 'Frames/'
+   path = 'applebees/Frames1/'
    filenames = os.listdir(path)
    numRanges = 10
    delay = 1
