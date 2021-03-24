@@ -33,7 +33,7 @@ def ClosestClusterIndex(pixelR, pixelC, clustList):
 
    
 ##################################################################################################################
-def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circleColor):
+def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circleColor,Pskip):
    copy = np.copy(image)
    bins = np.linspace(0,255,numRanges)
    filterIM = np.digitize(image, bins)
@@ -124,7 +124,8 @@ def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circle
    #    ClusterList[ClosestCluster].pixelsR.append(r)
    #    ClusterList[ClosestCluster].pixelsC.append(c)
    #    pixelCount += 1
-   for i in range(0,len(DarkPixelsC),10):
+   
+   for i in range(0,len(DarkPixelsC),Pskip):
       r = DarkPixelsR[i]
       c = DarkPixelsC[i]
 
@@ -156,11 +157,12 @@ def main():
    sizeThres = 1000
    circleSize = 15
    circleColor = (255, 0, 0)
+   PixelSkip = 10
 
    filenames.sort()
    for frameNumber, fileName in enumerate(filenames) :
       image = cv2.imread(path + fileName,0)
-      filterIM = ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circleColor)            #paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor) 
+      filterIM = ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circleColor,PixelSkip)            #paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor) 
       cv2.imshow('OGpic',image)
       cv2.imshow("Og_AfterCluster",filterIM)
       cv2.waitKey(delay)
