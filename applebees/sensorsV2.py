@@ -57,6 +57,7 @@ if E_Depth:
 
 Undistorted = Frame(512,424,4)
 # begin recieving new frames
+Running = True
 while True:
 
     frames = listener.waitForNewFrame()
