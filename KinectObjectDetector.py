@@ -1,7 +1,6 @@
 import cv2
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 
 class Cluster:
    def __init__(self, centerR, centerC, pixelsR, pixelsC):
@@ -114,7 +113,7 @@ def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circle
 
    #CLUSTER GUESS 
    pixelCount = 0
-   skip = 2
+   skip = 6
    ClosestCluster = 0
    for r, c in zip(DarkPixelsR, DarkPixelsC):
       if(pixelCount == skip):
