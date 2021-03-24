@@ -38,17 +38,18 @@ def ClosestClusterIndex(pixelR, pixelC, clustList):
 
 
 ##################################################################################################################
-def ClusterDetect(image, numRanges, spaceThres, sizeThres, circleSize, circleColor):
+def ClusterDetect(image, numRanges, spaceThres, sizeThres, circleSize, circleColor,Pskip):
     copy = np.copy(image)
-    bins = np.linspace(0, 255, numRanges)
-    filterIM = np.digitize(image, bins)
-    filterIM = filterIM / (len(bins))
-    filterIM[filterIM == (1 / len(bins))] = 1
-    minPixel = np.amin(filterIM)
-    noZeros = filterIM[filterIM != 0]
-    minPixel = np.amin(noZeros)
-    filterIM[filterIM > minPixel] = 0
-    filterIM[filterIM < minPixel] = 0
+    # bins = np.linspace(0, 255, numRanges)
+    # filterIM = np.digitize(image, bins)
+    # filterIM = filterIM / (len(bins))
+    # filterIM[filterIM == (1 / len(bins))] = 1
+    # minPixel = np.amin(filterIM)
+    # noZeros = filterIM[filterIM != 0]
+    # minPixel = np.amin(noZeros)
+    # filterIM[filterIM > minPixel] = 0
+    # filterIM[filterIM < minPixel] = 0
+    filterIM = image
 
     # ONLY DARK PIXELS
     minPixels = []
@@ -116,17 +117,21 @@ def ClusterDetect(image, numRanges, spaceThres, sizeThres, circleSize, circleCol
             DarkPixelsC = np.concatenate((DarkPixelsC, row))
 
     # CLUSTER GUESS
-    pixelCount = 0
-    skip = 2
-    ClosestCluster = 0
-    for r, c in zip(DarkPixelsR, DarkPixelsC):
-        if (pixelCount == skip):
-            pixelCount = 0
-            continue
+    # pixelCount = 0
+    # skip = 2
+    # ClosestCluster = 0
+    # for r, c in zip(DarkPixelsR, DarkPixelsC):
+    #     if (pixelCount == skip):
+    #         pixelCount = 0
+    #         continue
+    for i in range(0,len(DarkPixelsC),Pskip):
+        r = DarkPixelsR[i]
+        c = DarkPixelsC[i]
+        
         ClosestCluster = ClosestClusterIndex(r, c, ClusterList)
         ClusterList[ClosestCluster].pixelsR.append(r)
         ClusterList[ClosestCluster].pixelsC.append(c)
-        pixelCount += 1
+        
 
     # CLUSTER GUESS UPDATE CIRLES
     for i, cluster in enumerate(ClusterList):
@@ -210,7 +215,7 @@ while True:
 
 
     cv2.imshow("Depth",depth.asarray())
-    cv2.imshow("Undistorted",Undistorted.asarray(np.float32))
+   # cv2.imshow("Undistorted",Undistorted.asarray(np.float32))
 
     # APPLY IMAGE FILTER
 
@@ -219,13 +224,27 @@ while True:
     spaceThres = 20
     sizeThres = 5000
     circleSize = 15
-    circleColor = (255, 0, 0)
-
+    circleColor = (0, 0, 255)
+    Pskip = 10
+    
     image = depth.asarray()
-    filterIM = ClusterDetect(image, numRanges, spaceThres, sizeThres, circleSize,circleColor)  # paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor)
+
+    bins = np.linspace(0, 255, numRanges)
+    filterIM = np.digitize(image, bins)
+    filterIM = filterIM / (len(bins))
+    filterIM[filterIM == (1 / len(bins))] = 1
+    minPixel = np.amin(filterIM)
+    noZeros = filterIM[filterIM != 0]
+    minPixel = np.amin(noZeros)
+    filterIM[filterIM > minPixel] = 0
+    filterIM[filterIM < minPixel] = 0
+
+    
+    Result = ClusterDetect(image, numRanges, spaceThres, sizeThres, circleSize,circleColor,Pskip)  # paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor)
+
     cv2.imshow('OGpic', image)
-    cv2.imshow("Og_AfterCluster", filterIM[0])
-    print("Cluster LIST" ,filterIM[1])
+    cv2.imshow("Og_AfterCluster", Result[0])
+    #print("Cluster LIST" ,filterIM[1])
     cv2.waitKey(delay)
 
     listener.release(frames)
