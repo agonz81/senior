@@ -1,7 +1,6 @@
 import cv2
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 
 class Cluster:
    def __init__(self, centerR, centerC, pixelsR, pixelsC):
@@ -34,7 +33,7 @@ def ClosestClusterIndex(pixelR, pixelC, clustList):
 
    
 ##################################################################################################################
-def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circleColor):
+def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circleColor,Pskip):
    copy = np.copy(image)
    bins = np.linspace(0,255,numRanges)
    filterIM = np.digitize(image, bins)
@@ -118,6 +117,7 @@ def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circle
          DarkPixelsC = np.concatenate((DarkPixelsC  ,  row) )
 
    #CLUSTER GUESS 
+
    # pixelCount = 0
    # skip = 2
    # ClosestCluster = 0
@@ -129,9 +129,11 @@ def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circle
    #    ClusterList[ClosestCluster].pixelsR.append(r)
    #    ClusterList[ClosestCluster].pixelsC.append(c)
    #    pixelCount += 1
-   for i in range(0,len(DarkPixelsC),10):
+   
+   for i in range(0,len(DarkPixelsC),Pskip):
       r = DarkPixelsR[i]
       c = DarkPixelsC[i]
+
       ClosestCluster = ClosestClusterIndex(r, c, ClusterList)
       ClusterList[ClosestCluster].pixelsR.append(r)
       ClusterList[ClosestCluster].pixelsC.append(c)
@@ -160,27 +162,17 @@ def main():
    sizeThres = 1000
    circleSize = 15
    circleColor = (255, 0, 0)
+   PixelSkip = 10
 
    filenames.sort()
-   valuesInside = []
-   while 1:
-      for frameNumber, fileName in enumerate(filenames) :
-         image = cv2.imread(path + fileName,0)
 
-         for r, row in enumerate(image):
-            #print(f"ROW NUMBER:{r}")
-            for c, column in enumerate(row):
-               #print(f"COLUMN:{c}   value:{column}\n")
-               if(column not in valuesInside):
-                  valuesInside.append(column)
-         print(valuesInside)
-         print(min(valuesInside))
-         print(max(valuesInside))
-         input()
-         filterIM = ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circleColor)            #paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor)
-         cv2.imshow('OGpic',image)
-         cv2.imshow("Og_AfterCluster",filterIM)
-         cv2.waitKey(0)
+   for frameNumber, fileName in enumerate(filenames) :
+      image = cv2.imread(path + fileName,0)
+      filterIM = ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circleColor,PixelSkip)            #paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor) 
+      cv2.imshow('OGpic',image)
+      cv2.imshow("Og_AfterCluster",filterIM)
+      cv2.waitKey(delay)
+
    return 0
 
 if __name__ == '__main__':

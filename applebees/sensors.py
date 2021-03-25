@@ -144,12 +144,7 @@ else:
     detector = cv2.SimpleBlobDetector_create(params)
 # for file saving
 imCount = 0
-files = glob.glob("/Frames1/*")
-for f in files:
-    try:
-        f.unlink()
-    except OSError as e:
-        print("Error: %s : %s" % (f,e.streeror))
+# fqq
 curFrame = []
 prevFrame = []
 first = True
@@ -240,8 +235,7 @@ while True:
     minbuzz1 = 2
     minbuzz2 = 2
     minbuzz3 = 2
-    # print(len(buz1))
-    # exit(1)
+    """
     for x in range(0,424,10):
         for y in range(0,169,10):
             # print(x,y)
@@ -294,11 +288,7 @@ while True:
             # if(minbuzz1 == .2 and minbuzz2 == .2 and minbuzz3 == .2):
             #     break
 
-    #print(np.argmin(avgs))
-        # buz1.append( R[0:170]  )
-        # buz2.append ( R[170:340] )
-        # buz3.append( R[340:510])
-    #print(type(buz1))
+    """
     buz1 = np.asarray(buz1,dtype=np.float32)
     buz2 = np.asarray(buz2,dtype=np.float32)
     buz3 = np.asarray(buz3,dtype=np.float32)
@@ -346,17 +336,11 @@ while True:
     #             im[r][w] = 0
     #cv2.imshow("MAINWINDOW",Win)
     #cv2.imshow("im", im)
-    # imblob = (poop*255).astype('uint8')
-    # keypoints = detector.detect(imblob)
-    # out_im = np.array([])
-    # im_key = cv2.drawKeypoints(imblob, keypoints, out_im, color=(0, 255, 55),
-    #                            flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-
-    # cv2.imshow("keypts",im_key)
-    # cv2.imshow("realPOOP",poop)
+    
+    cv2.imshow("realPOOP",poop)
     #write_im = cv2.imread(poop,0)
     if saving_frame:
-        cv2.imwrite("Frames2/"+str(imCount)+'.jpg',poop*255)
+        cv2.imwrite("Frames4/"+str(imCount)+'.jpg',poop*255)
         imCount += 1
         #print("saving frame",imCount)
     #cv2.imshow("Range",Range)
@@ -373,48 +357,11 @@ while True:
 
         if not saving_frame :
             saving_frame = True
+            print("Recording")
         else:
             saving_frame = False
-        # with open('image.data',"w+") as f:
-
-        #     im = depth.asarray(dtype =np.float32)
-           
-        #     # f.write(f"h = {len(im)} , w = {len(im[1])}\n")
-        #     #for i in  im:
-        #     #    f.write(str(i) + "\n")
-        #         #print(i)
-        #    #f.write("---------------\n")
-        #     imC = color.asarray()
-        #     # f.write(f"h = {len(imC)} , w = {len(imC[1])}\n")
-        #     # for i in imC:
-        #     #     f.write(str(i) + "\n")
-        #     #      #print(i)
-        #     #print(len(im),len(im[1]))
-        # # print(im)
-        # Thresh1 = 300
-        # Thresh2 = 500
-
-        
-        # for r in range(424):
-        #     for w in range(512):
-        #         if im[r][w] > Thresh1 and im[r][w] < Thresh2:
-        #             im[r][w] = 203
-        #         else:
-        #             im[r][w] = 0
-
-                    
-            
-
-        #     # print(r)
-        #     #for w in r:
-        #      #   print(w)
+            print("Done Recording")
        
-        # cv2.imshow("saved",im / 4500 )
-        # cv2.imshow("changed",im/4500)
-        
-        # #cv2.imshow("saved2",imC)
-        # #print(color.asarray())
-        
 
     listener.release(frames)
 
