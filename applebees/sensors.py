@@ -179,29 +179,9 @@ while True:
     # H = 
     Thresh1 = 1000
     Thresh2 = 2000
-    im = depth.asarray(dtype=np.float32)
-    curFrame = im
-    #if not first:
-        # print(cv2.subtract(curFrame, prevFrame))
-        #x = curFrame-prevFrame
-        #sum = 0
-        #for r in x:
-        #    sum += r
-
-       # print(sum)
-
-        # if curFrame - prevFrame > 0:
-        #     print("Significant")
-        # else:
-        #     print("very similar")
-    #else:
-        #first = False
-
-    
-    #cv2.imshow("out", out_im)
-    #tl,br = (0,0),(170,170)
-    #Win = cv2.rectangle(Win,tl,br,(0,244,0),15)
-
+    im = depth.asarray(dtype=np.float32) * (255 /4500)
+    im = np.array(im,dtype = np.uint8)
+   
     buz1 = []
     buz2 = []
     buz3 = []
@@ -220,14 +200,14 @@ while True:
     c = 0
     for R in im:
         inds = np.digitize(R,bins)
-        # inds = 1- (1/inds)
-        # print(inds)
         inds = inds/(len(bins))
-        #poop.append(inds)
-        if c > 200  and c < 210:
-            Range.append(inds[200:220])
-            # print(Range)
-            
+        #separate the cols for each buzzer
+        buz1.append(inds[0:170])
+        buz2.append(inds[170:340])
+        buz3.append(inds[340:510])
+
+
+        poop.append(inds)
         
     # avgs = []
     # avgs.append( np.average(buz1) )
@@ -293,7 +273,7 @@ while True:
     buz1 = np.asarray(buz1,dtype=np.float32)
     buz2 = np.asarray(buz2,dtype=np.float32)
     buz3 = np.asarray(buz3,dtype=np.float32)
-    #poop = np.asarray(poop,dtype=np.uint8)
+    
 
     poop = np.asarray(poop,dtype=np.float32)
     #print(poop)
@@ -341,7 +321,7 @@ while True:
     cv2.imshow("realPOOP",poop)
     #write_im = cv2.imread(poop,0)
     if saving_frame:
-        cv2.imwrite("Frames4/"+str(imCount)+'.jpg',poop*255)
+        cv2.imwrite("Frames3/"+str(imCount)+'.jpg',poop*255)
         imCount += 1
         #print("saving frame",imCount)
     #cv2.imshow("Range",Range)
