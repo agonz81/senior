@@ -232,12 +232,7 @@ while True:
             Range.append(inds[200:220])
             # print(Range)
             
-        #exit(1)
-        c+= 1    
-        buz1.append( inds[0:169]  )
-        buz2.append ( inds[170:339] )
-        buz3.append( inds[340:509])
-        poop.append( inds )
+        
     # avgs = []
     # avgs.append( np.average(buz1) )
     # avgs.append( np.average(buz2) )

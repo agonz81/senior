@@ -46,6 +46,11 @@ def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circle
    filterIM[filterIM > minPixel] = 0
    filterIM[filterIM < minPixel] = 0
 
+   # print(type(image))
+   # print(image.dtype)
+   # print(image.shape)
+   # print(image.ndim)
+   # input()
    #ONLY DARK PIXELS
    minPixels = []
    for r, row in enumerate(filterIM):
@@ -147,22 +152,35 @@ def ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circle
 
 
 def main():
-   path = 'applebees/Frames1/'
+   path = 'applebees/Frames2/'
    filenames = os.listdir(path)
    numRanges = 10
-   delay = 1
+   delay = 300
    spaceThres = 20
    sizeThres = 1000
    circleSize = 15
    circleColor = (255, 0, 0)
 
    filenames.sort()
-   for frameNumber, fileName in enumerate(filenames) :
-      image = cv2.imread(path + fileName,0)
-      filterIM = ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circleColor)            #paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor) 
-      cv2.imshow('OGpic',image)
-      cv2.imshow("Og_AfterCluster",filterIM)
-      cv2.waitKey(delay)
+   valuesInside = []
+   while 1:
+      for frameNumber, fileName in enumerate(filenames) :
+         image = cv2.imread(path + fileName,0)
+
+         for r, row in enumerate(image):
+            #print(f"ROW NUMBER:{r}")
+            for c, column in enumerate(row):
+               #print(f"COLUMN:{c}   value:{column}\n")
+               if(column not in valuesInside):
+                  valuesInside.append(column)
+         print(valuesInside)
+         print(min(valuesInside))
+         print(max(valuesInside))
+         input()
+         filterIM = ClusterDetect(image, numRanges, spaceThres,  sizeThres,  circleSize,  circleColor)            #paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor)
+         cv2.imshow('OGpic',image)
+         cv2.imshow("Og_AfterCluster",filterIM)
+         cv2.waitKey(0)
    return 0
 
 if __name__ == '__main__':
