@@ -38,18 +38,56 @@ def ClosestClusterIndex(pixelR, pixelC, clustList):
 
 
 ##################################################################################################################
-def ClusterDetect(image,minPixel ,  spaceThres, sizeThres, circleSize, circleColor,Pskip):  #numRanges,
+def ClusterDetect(image,numRanges,  spaceThres, sizeThres, circleSize, circleColor,Pskip):  #numRanges,
+    HeightOff = 40
     copy = np.copy(image)
-    # bins = np.linspace(0, 255, numRanges)
-    # filterIM = np.digitize(image, bins)
-    # filterIM = filterIM / (len(bins))
-    # filterIM[filterIM == (1 / len(bins))] = 1
-    # minPixel = np.amin(filterIM)
-    # noZeros = filterIM[filterIM != 0]
-    # minPixel = np.amin(noZeros)
-    # filterIM[filterIM > minPixel] = 0
-    # filterIM[filterIM < minPixel] = 0
-    filterIM = image
+    bins = np.linspace(0, 255, numRanges)
+    filterIM = np.digitize(image, bins)  #[HeightOff:len(image)-HeightOff]
+    filterIM = filterIM / (len(bins))
+    filterIM[filterIM == (1 / len(bins))] = 0
+    cv2.imshow("quantized",filterIM)
+    #minPixel = np.amin(image)
+    noZeros = filterIM[filterIM != 0]
+    
+    minPixel = np.amin(noZeros)
+    
+    # size_min = len(noZeros[noZeros == minPixel])
+
+
+    # while size_min < 10:
+    #     size_min = len(noZeros[noZeros == minPixel])
+    #     minPixel +=0.1
+
+    
+
+        
+
+
+
+    # lenOfMinPixels = np.where()
+    # minPixSize = 10*512
+    # minPixel = 0
+    # n = 1
+    # while lenOfMinPixels < minPixSize:
+    #     if(lenOfMinPixels >0):
+    #         minPixel = np.amin(noZeros)
+    #         minPixels1D = noZeros[noZeros == minPixel]
+    #         lenOfMinPixels = len(minPixels1D)
+    #         if(lenOfMinPixels < minPixSize):
+    #             noZeros = filterIM # back to 
+    #             noZeros[noZeros == minPixel] = 0
+    #             noZeros = noZeros[40*512*n:-(40*512*n)]
+    #             noZeros = noZeros[noZeros != 0]
+    #             n += 1
+    #            # minPixSize = sizeThres *80/n
+
+          
+    print(minPixel)
+    filterIM[filterIM > minPixel] = 0
+    filterIM[filterIM < minPixel] = 0
+    cv2.imshow("FILTERED", filterIM)
+
+    #filterIM = image
 
     # ONLY DARK PIXELS
     minPixels = []
@@ -90,7 +128,7 @@ def ClusterDetect(image,minPixel ,  spaceThres, sizeThres, circleSize, circleCol
         else:
             cIndex += 1
 
-    # column cordinates for centers
+    # column cordinates for centers1
     cols = []
     biggestCluster = 0
     clusterNum = 0
@@ -136,13 +174,14 @@ def ClusterDetect(image,minPixel ,  spaceThres, sizeThres, circleSize, circleCol
     # CLUSTER GUESS UPDATE CIRLES
     for i, cluster in enumerate(ClusterList):
         # print(f"FrameNumber:{frameNumber}       ClusterNumber:{i}      ClusterSize:{cluster.size()}")#, end = None
-        cluster.updateCenter()
+        if(cluster.size() > 0):
+            cluster.updateCenter()
         # cluster.printCenter()
         if (cluster.size() < sizeThres):
             continue
-        filterIM = cv2.circle(copy, (cluster.centerC, cluster.centerR), circleSize, circleColor, -1)
+        copy = cv2.circle(copy, (cluster.centerC, cluster.centerR), circleSize, circleColor, -1)
 
-    return filterIM,ClusterList
+    return copy,ClusterList
 
 
 #setup packet pipeline . In our case the pipeline is openGL
@@ -201,6 +240,8 @@ Running = True
 while True:
 
     frames = listener.waitForNewFrame()
+ 
+    
 
     if E_RGB:
         color = frames["color"]
@@ -214,36 +255,62 @@ while True:
         registration.undistortDepth(depth, Undistorted)
 
 
-    cv2.imshow("Depth",depth.asarray())
+    # cv2.imshow("Depth",depth.asarray())
    # cv2.imshow("Undistorted",Undistorted.asarray(np.float32))
 
     # APPLY IMAGE FILTER
 
     numRanges = 10
     delay = 1
-    spaceThres = 20
-    sizeThres = 5000
+    spaceThres = 10
+    sizeThres = 500
     circleSize = 15
-    circleColor = (0, 0, 255)
-    Pskip = 10
+    circleColor = (2550, 0, 0)
+    Pskip = 20
     
-    image = depth.asarray()
 
-    bins = np.linspace(0, 255, numRanges)
-    filterIM = np.digitize(image, bins)
-    filterIM = filterIM / (len(bins))
-    filterIM[filterIM == (1 / len(bins))] = 1
-    minPixel = np.amin(filterIM)
-    noZeros = filterIM[filterIM != 0]
-    minPixel = np.amin(noZeros)
-    filterIM[filterIM > minPixel] = 0
-    filterIM[filterIM < minPixel] = 0
+    #image = depth.asarray(dtype=np.float32)
+    image = depth.asarray(dtype = np.float32)*(255/4500)
+    image = np.array(image, dtype = np.uint8)
+    #print(image)
+    # image = np.asarray(image)
+    # print('Hello')
+    # uniqueValues = []
+    # for r, row in enumerate(image):
+    #     for c, column in enumerate(row):
+    #         if(column not in uniqueValues):
+    #             uniqueValues.append(column)
+    # print('hello')
+    # print(uniqueValues)
+    # print(min(uniqueValues))
+    # print(max(uniqueValues))
+    
+
+
+    #cv2.imshow("test", image)
+    #image = np.array(image,dtype=np.uint8 )
+    #image = cv2.cvtColor(depth.asarray(),cv2.COLOR_BGR2GRAY)
+    # print(image.dtype)
+    # print(image.shape)
+    # print(image.ndim)
+    #image = image.resize
 
     
-    Result = ClusterDetect(image,minPixel , spaceThres, sizeThres, circleSize,circleColor,Pskip)  #numRanges paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor)
+    # filterIM[filterIM == (1 / len(bins))] = 1
+    # minPixel = np.amin(filterIM)
+    # noZeros = filterIM[filterIM != 0]
+    # minPixel = np.amin(noZeros)
+    # filterIM[filterIM > minPixel] = 0
+    # filterIM[filterIM < minPixel] = 0
 
-    cv2.imshow('OGpic', image)
-    cv2.imshow("Og_AfterCluster", Result[0])
+    #cv2.imshow('FilterIM', filterIM)
+    # cv2.imshow('OGpic', image)
+
+    #cv2.waitKey(0)
+
+    Result, clusterList = ClusterDetect(image, numRanges,  spaceThres, sizeThres, circleSize,circleColor,Pskip)  # paramaters (Frame_Image,   Number_Of_Ranges,  Space_Threshold,  Size_Threshold circleSize,  circleColor)
+
+    cv2.imshow("Og_AfterCluster", Result)
     #print("Cluster LIST" ,filterIM[1])
     cv2.waitKey(delay)
 
