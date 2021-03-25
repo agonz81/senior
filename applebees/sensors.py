@@ -214,8 +214,9 @@ while True:
     #         buz1[x][y+141] = im[x][y+141]
     #         buz1[x][y+282] = im[x][y+282]
     # print(len(im))
-    # values of 0 , 1, 2 for depth 
-    bins = [.5,1200,2000,2800,3600]
+    # values of 0 , 1, 2 for depth
+    numRanges = 10
+    bins = np.linspace(0,255,numRanges)
     c = 0
     for R in im:
         inds = np.digitize(R,bins)
