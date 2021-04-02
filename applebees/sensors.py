@@ -36,34 +36,33 @@ def callback_two(output_pin_two, b):
 
 # for PWM using board pins 32,33
 
-"""##############################################
-# GPIO.setmode(GPIO.BOARD)
-# GPIO.setup(output_pin_one,GPIO.OUT,initial=GPIO.HIGH)
-# p = GPIO.PWM(output_pin_one,50)
-# pwmVal = 0
-# p.start(pwmVal)
+##############################################
+
 
 
 output_pin_one = 18 #jetson board 12
 output_pin_two = 17 #jetson board 11
-
+output_pin_three = 19
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(output_pin_one, GPIO.OUT, initial=GPIO.HIGH)
-GPIO.setup(output_pin_two, GPIO.OUT, initial=GPIO.HIGH)
+GPIO.setup(output_pin_one, GPIO.OUT, initial=0)
+GPIO.setup(output_pin_two, GPIO.OUT, initial=0)
+GPIO.setup(output_pin_three, GPIO.OUT, initial=GPIO.HIGH)
+
 # GPIO.add_event_callback(output_pin_one, callback_one)
 # GPIO.add_event_callback(output_pin_two, callback_two)
+# GPIO.add_event_callback(output_pin_three, callback_two)
 ######################################OUTDATED"""
+# buzzpin3 =  28
+# PWM_PIN_1 = 32
+# PWM_PIN_2 = 33
+# GPIO.setmode(GPIO.BOARD)
 
-PWM_PIN_1 = 32
-PWM_PIN_2 = 33
-GPIO.setmode(GPIO.BOARD)
+# GPIO.setup(PWM_PIN_1,GPIO.OUT,initial = 0)
+# GPIO.setup(PWM_PIN_2,GPIO.OUT,initial = 0)
+# GPIO.setup(buzzpin3,GPIO.OUT,initial = 0)
 
-GPIO.setup(PWM_PIN_1,GPIO.OUT,initial = GPIO.HIGH)
-GPIO.setup(PWM_PIN_2,GPIO.OUT,initial = GPIO.HIGH)
-
-
-p1 = GPIO.PWM(PWM_PIN_1,100)
-p2 = GPIO.PWM(PWM_PIN_2,100)
+# p1 = GPIO.PWM(PWM_PIN_1,100)
+# p2 = GPIO.PWM(PWM_PIN_2,100)
 
 #p1.start(50)
 #p2.start(50)
@@ -115,46 +114,51 @@ buzztime2 = 1
 buzztime3 = 1
 #temporarily recalling every buzztime*20 bc it spams print for now
 def buzz1():
-    threading.Timer(1, buzz1).start()  
+    threading.Timer(buzztime1, buzz1).start()  
 
+    if(buzztime1 != 1.5):
+        GPIO.output(output_pin_one, GPIO.HIGH)
+        time.sleep(.5)
+        print("time1 :", buzztime1)
+        GPIO.output(output_pin_one, 0)
     # if(buzztime1 != 1.5):
-    #     GPIO.output(output_pin_one, GPIO.HIGH)
-    #     time.sleep(1)
-    #     print(buzztime1)
-    #     GPIO.output(output_pin_one, 0)
-    if(buzztime1 != 1.5)
-        change = buzztime1 * 100
-        print(f"buz1 change: {change}")
-        p1.ChangeDutyCycle(change)
+    #     change = buzztime1 * 100
+    #     print(f"buz1 change: {change}")
+    #     p1.ChangeDutyCycle(change)
 
 
         
 
-def buzz2(dutyP):
-    #threading.Timer(buzztime2, buzz2).start()
+def buzz2():
+    threading.Timer(buzztime2, buzz2).start()
 
-    #if(buzztime1 != 1.5):
-        # GPIO.output(output_pin_two, GPIO.HIGH)
-        # time.sleep(1)
-        # print(buzztime2)
-        # GPIO.output(output_pin_one, 0)
+    if(buzztime1 != 1.5):
+        GPIO.output(output_pin_two, GPIO.HIGH)
+        time.sleep(.5)
+        print("time2 :", buzztime2)
+        GPIO.output(output_pin_two, 0)
 
-    try:
-        change = int((1-dutyP)*100)
-        print(f"buz2 change: {change}")
+    # try:
+    #     change = int((1-dutyP)*100)
+    #     print(f"buz2 change: {change}")
         
-        p2.ChangeDutyCycle(change)
-        #time.sleep(1)
-        #p2.ChangeDutyCycle(0)
-    finally:
+    #     p2.ChangeDutyCycle(change)
+    #     #time.sleep(1)
+    #     #p2.ChangeDutyCycle(0)
+    # finally:
         
-        p2.stop()
+    #     p2.stop()
        
-# def buzz3():
-#     threading.Timer(buzztime3*5, buzz3).start()
-#     #print("buzz3: ", buzztime3)
+def buzz3():
+    threading.Timer(buzztime3, buzz3).start()
+    if(buzztime1 != 1.5):
+        GPIO.output(output_pin_three, GPIO.HIGH)
+        time.sleep(.5)
+        print("time3 :", buzztime3)
+        GPIO.output(output_pin_three, 0)
 buzz1()
 buzz2()
+buzz3()
 
 
 # for file saving
@@ -250,7 +254,7 @@ while True:
     if minbuzz1 == 2:
         buzztime1 = 1.5
     if minbuzz2 == 2:
-        buzztime2 = 1.5
+        buzztime2 =1.5
     if minbuzz3 == 2:
         buzztime3 = 1.5
 
@@ -269,25 +273,25 @@ while True:
         buzztime3 = 0.4
 
     if minbuzz1 == 0.6:
-        buzztime1 = 0.6
-    if minbuzz2 == 0.6:
-        buzztime2 = 0.6
-    if minbuzz3 == 0.6:
-        buzztime3 = 0.6
-
-    if minbuzz1 == 0.8:
         buzztime1 = 0.8
-    if minbuzz2 == 0.8:
+    if minbuzz2 == 0.6:
         buzztime2 = 0.8
-    if minbuzz3 == 0.8:
+    if minbuzz3 == 0.6:
         buzztime3 = 0.8
 
+    if minbuzz1 == 0.8:
+        buzztime1 = 1.6
+    if minbuzz2 == 0.8:
+        buzztime2 = 1.6
+    if minbuzz3 == 0.8:
+        buzztime3 = 1.6
+
     if minbuzz1 == 1:
-        buzztime1 = 1
+        buzztime1 = 3.2
     if minbuzz2 == 1:
-        buzztime2 = 1
+        buzztime2 = 3.2
     if minbuzz3 == 1:
-        buzztime3 = 1
+        buzztime3 = 3.2
     # print(minbuzz1,minbuzz2,minbuzz3)
     
 
@@ -309,7 +313,7 @@ while True:
     cv2.imshow("realPOOP",poop)
     #write_im = cv2.imread(poop,0)
     if saving_frame:
-        cv2.imwrite("Frames7/"+str(imCount)+'.jpg',poop*255)
+        cv2.imwrite("Frames8/"+str(imCount)+'.jpg',poop*255)
         imCount += 1
         #print("saving frame",imCount)
     #cv2.imshow("Range",Range)
@@ -338,8 +342,8 @@ while True:
     if key == ord('q'):
         break
 
-p1.stop()
-p2.stop()
+# p1.stop()
+# p2.stop()
 GPIO.cleanup()
 device.stop()
 device.close()
