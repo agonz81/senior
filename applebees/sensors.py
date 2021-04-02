@@ -114,23 +114,19 @@ buzztime1 = 1
 buzztime2 = 1
 buzztime3 = 1
 #temporarily recalling every buzztime*20 bc it spams print for now
-def buzz1(dutyP):
-    #threading.Timer(buzztime1, buzz1).start()  
+def buzz1():
+    threading.Timer(1, buzz1).start()  
 
-    #if(buzztime1 != 1.5):
-        #GPIO.output(output_pin_one, GPIO.HIGH)
-        #time.sleep(1)
-        #print(buzztime1)
-        #GPIO.output(output_pin_one, 0)
-    try:
-        change = int((1-dutyP) * 100)
+    # if(buzztime1 != 1.5):
+    #     GPIO.output(output_pin_one, GPIO.HIGH)
+    #     time.sleep(1)
+    #     print(buzztime1)
+    #     GPIO.output(output_pin_one, 0)
+    if(buzztime1 != 1.5)
+        change = buzztime1 * 100
         print(f"buz1 change: {change}")
         p1.ChangeDutyCycle(change)
-        #time.sleep(1)
-        #p1.ChangeDutyCycle(0)
-    finally:
-        
-        p1.stop()
+
 
         
 
@@ -157,8 +153,9 @@ def buzz2(dutyP):
 # def buzz3():
 #     threading.Timer(buzztime3*5, buzz3).start()
 #     #print("buzz3: ", buzztime3)
+buzz1()
+buzz2()
 
-#buzz3()
 
 # for file saving
 imCount = 0
@@ -249,7 +246,7 @@ while True:
             if(minbuzz1 == .2 and minbuzz2 == .2 and minbuzz3 == .2):
                 break
 
-    time1 = 1/4
+    
     if minbuzz1 == 2:
         buzztime1 = 1.5
     if minbuzz2 == 2:
@@ -258,42 +255,41 @@ while True:
         buzztime3 = 1.5
 
     if minbuzz1 == 0.2:
-        buzztime1 = 1/4
+        buzztime1 = 0.2
     if minbuzz2 == 0.2:
-        buzztime2 = 1/4
+        buzztime2 = 0.2
     if minbuzz3 == 0.2:
-        buzztime3 = 1/4
+        buzztime3 = 0.2
 
     if minbuzz1 == 0.4:
-        buzztime1 = 1/2
+        buzztime1 = 0.4
     if minbuzz2 == 0.4:
-        buzztime2 = 1/2
+        buzztime2 = 0.4
     if minbuzz3 == 0.4:
-        buzztime3 = 1/2
+        buzztime3 = 0.4
 
     if minbuzz1 == 0.6:
-        buzztime1 = 1
+        buzztime1 = 0.6
     if minbuzz2 == 0.6:
-        buzztime2 = 1
+        buzztime2 = 0.6
     if minbuzz3 == 0.6:
-        buzztime3 = 1
+        buzztime3 = 0.6
 
     if minbuzz1 == 0.8:
-        buzztime1 = 2
+        buzztime1 = 0.8
     if minbuzz2 == 0.8:
-        buzztime2 = 2
+        buzztime2 = 0.8
     if minbuzz3 == 0.8:
-        buzztime3 = 2
+        buzztime3 = 0.8
 
     if minbuzz1 == 1:
-        buzztime1 = 4
+        buzztime1 = 1
     if minbuzz2 == 1:
-        buzztime2 = 4
+        buzztime2 = 1
     if minbuzz3 == 1:
-        buzztime3 = 4
+        buzztime3 = 1
     # print(minbuzz1,minbuzz2,minbuzz3)
-    # buzz1(minbuzz1)
-    # buzz2(minbuzz2)
+    
 
     buz1 = np.asarray(buz1,dtype=np.float32)
     buz2 = np.asarray(buz2,dtype=np.float32)
