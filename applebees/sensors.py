@@ -9,6 +9,10 @@ import time
 from pylibfreenect2 import Freenect2, SyncMultiFrameListener
 from pylibfreenect2 import FrameType, Registration, Frame
 
+import glob
+import threading
+import RPi.GPIO as GPIO
+
 try:
     from pylibfreenect2 import OpenGLPacketPipeline
     pipeline = OpenGLPacketPipeline()
@@ -20,6 +24,49 @@ except:
         from pylibfreenect2 import CpuPacketPipeline
         pipeline = CpuPacketPipeline()
 print("Packet pipeline:", type(pipeline).__name__)
+
+a = 1
+b = 2
+
+def callback_one(output_pin_one, a):
+    print("First callback")
+
+def callback_two(output_pin_two, b):
+    print("second callback")
+
+# for PWM using board pins 32,33
+
+"""##############################################
+# GPIO.setmode(GPIO.BOARD)
+# GPIO.setup(output_pin_one,GPIO.OUT,initial=GPIO.HIGH)
+# p = GPIO.PWM(output_pin_one,50)
+# pwmVal = 0
+# p.start(pwmVal)
+
+
+output_pin_one = 18 #jetson board 12
+output_pin_two = 17 #jetson board 11
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(output_pin_one, GPIO.OUT, initial=GPIO.HIGH)
+GPIO.setup(output_pin_two, GPIO.OUT, initial=GPIO.HIGH)
+# GPIO.add_event_callback(output_pin_one, callback_one)
+# GPIO.add_event_callback(output_pin_two, callback_two)
+######################################OUTDATED"""
+
+PWM_PIN_1 = 32
+PWM_PIN_2 = 33
+GPIO.setmode(GPIO.BOARD)
+
+GPIO.setup(PWM_PIN_1,GPIO.OUT,initial = GPIO.HIGH)
+GPIO.setup(PWM_PIN_2,GPIO.OUT,initial = GPIO.HIGH)
+
+
+p1 = GPIO.PWM(PWM_PIN_1,100)
+p2 = GPIO.PWM(PWM_PIN_2,100)
+
+#p1.start(50)
+#p2.start(50)
 
 enable_rgb = True
 enable_depth = True
@@ -60,6 +107,65 @@ WINL =1080
 WINH =720
 Win = np.zeros((WINH,WINL),np.uint8)
 
+
+
+
+buzztime1 = 1
+buzztime2 = 1
+buzztime3 = 1
+#temporarily recalling every buzztime*20 bc it spams print for now
+def buzz1(dutyP):
+    #threading.Timer(buzztime1, buzz1).start()  
+
+    #if(buzztime1 != 1.5):
+        #GPIO.output(output_pin_one, GPIO.HIGH)
+        #time.sleep(1)
+        #print(buzztime1)
+        #GPIO.output(output_pin_one, 0)
+    try:
+        change = int((1-dutyP) * 100)
+        print(f"buz1 change: {change}")
+        p1.ChangeDutyCycle(change)
+        #time.sleep(1)
+        #p1.ChangeDutyCycle(0)
+    finally:
+        
+        p1.stop()
+
+        
+
+def buzz2(dutyP):
+    #threading.Timer(buzztime2, buzz2).start()
+
+    #if(buzztime1 != 1.5):
+        # GPIO.output(output_pin_two, GPIO.HIGH)
+        # time.sleep(1)
+        # print(buzztime2)
+        # GPIO.output(output_pin_one, 0)
+
+    try:
+        change = int((1-dutyP)*100)
+        print(f"buz2 change: {change}")
+        
+        p2.ChangeDutyCycle(change)
+        #time.sleep(1)
+        #p2.ChangeDutyCycle(0)
+    finally:
+        
+        p2.stop()
+       
+# def buzz3():
+#     threading.Timer(buzztime3*5, buzz3).start()
+#     #print("buzz3: ", buzztime3)
+
+#buzz3()
+
+# for file saving
+imCount = 0
+# fqq
+
+first = True
+saving_frame = False
 while True:
     frames = listener.waitForNewFrame()
     
@@ -90,128 +196,144 @@ while True:
     # H = 
     Thresh1 = 1000
     Thresh2 = 2000
-    im = depth.asarray(dtype=np.float32)
-
-    #tl,br = (0,0),(170,170)
-    #Win = cv2.rectangle(Win,tl,br,(0,244,0),15)
-
+    im = depth.asarray(dtype=np.float32) 
+    #im = np.array(im,dtype = np.uint8)
+   
     buz1 = []
     buz2 = []
     buz3 = []
+    Range = []
+    poop = []
 
-
-    # for x in range(0,512): # row = 512
+    # for x in range(0,512,6): # row = 512
     #     for y in range(0,141): # col = 424
     #         buz1[x][y] = im[x][y]
     #         buz1[x][y+141] = im[x][y+141]
     #         buz1[x][y+282] = im[x][y+282]
     # print(len(im))
-    # values of 0 , 1, 2 for depth 
-    bins = [500,1000,1500,2000,2500,3000,3500,4000]
-    for R in im:
+    # values of 0 , 1, 2 for depth
+    #numRanges = 5
+    #bins = np.linspace(0,255,numRanges)
+    bins = np.array([500, 1500, 2500, 3500, 4500])
+    c = 0
+    for r, R in enumerate(im):
+        if r == 353:
+            break
         inds = np.digitize(R,bins)
-        inds = inds/(len(bins)-1)
-        
-            
-        buz1.append( inds[0:170]  )
-        buz2.append ( inds[170:340] )
-        buz3.append( inds[340:510])
-    avgs = []
-    avgs.append( np.average(buz1) )
-    avgs.append( np.average(buz2) )
-    avgs.append( np.average(buz3) )
+        inds = inds/(len(bins))
+        #separate the cols for each buzzer
+        buz1.append(inds[0:170])
+        buz2.append(inds[170:340])
+        buz3.append(inds[340:510])
 
-    # print(np.argmin(avgs))
-        # buz1.append( R[0:170]  )
-        # buz2.append ( R[170:340] )
-        # buz3.append( R[340:510])
-    #print(type(buz1))
+
+        poop.append(inds)
+        
+    # avgs = []
+    # avgs.append( np.average(buz1) )
+    # avgs.append( np.average(buz2) )
+    # avgs.append( np.average(buz3) )
+    minbuzz1 = 2
+    minbuzz2 = 2
+    minbuzz3 = 2
+    
+    for x in range(0,283,10):
+        for y in range(0,169,10):
+            # print(x,y)
+            if (buz1[x][y] != 0):
+                minbuzz1 = min(buz1[x][y],minbuzz1)
+            if (buz2[x][y] != 0):
+                minbuzz2 = min(buz2[x][y],minbuzz2)   
+            if (buz3[x][y] != 0):
+                minbuzz3 = min(buz3[x][y],minbuzz3)     
+            if(minbuzz1 == .2 and minbuzz2 == .2 and minbuzz3 == .2):
+                break
+
+    time1 = 1/4
+    if minbuzz1 == 2:
+        buzztime1 = 1.5
+    if minbuzz2 == 2:
+        buzztime2 = 1.5
+    if minbuzz3 == 2:
+        buzztime3 = 1.5
+
+    if minbuzz1 == 0.2:
+        buzztime1 = 1/4
+    if minbuzz2 == 0.2:
+        buzztime2 = 1/4
+    if minbuzz3 == 0.2:
+        buzztime3 = 1/4
+
+    if minbuzz1 == 0.4:
+        buzztime1 = 1/2
+    if minbuzz2 == 0.4:
+        buzztime2 = 1/2
+    if minbuzz3 == 0.4:
+        buzztime3 = 1/2
+
+    if minbuzz1 == 0.6:
+        buzztime1 = 1
+    if minbuzz2 == 0.6:
+        buzztime2 = 1
+    if minbuzz3 == 0.6:
+        buzztime3 = 1
+
+    if minbuzz1 == 0.8:
+        buzztime1 = 2
+    if minbuzz2 == 0.8:
+        buzztime2 = 2
+    if minbuzz3 == 0.8:
+        buzztime3 = 2
+
+    if minbuzz1 == 1:
+        buzztime1 = 4
+    if minbuzz2 == 1:
+        buzztime2 = 4
+    if minbuzz3 == 1:
+        buzztime3 = 4
+    # print(minbuzz1,minbuzz2,minbuzz3)
+    # buzz1(minbuzz1)
+    # buzz2(minbuzz2)
+
     buz1 = np.asarray(buz1,dtype=np.float32)
     buz2 = np.asarray(buz2,dtype=np.float32)
     buz3 = np.asarray(buz3,dtype=np.float32)
+    
+
+    poop = np.asarray(poop,dtype=np.float32)
+    #print(poop)
+    
+    Range = np.asarray(Range,dtype=np.float32)
     #print(type(buz1))
     
-   # print(buz1,buz2,buz3)
-            #buz1
-            # if im[x][y] > Thresh1 and im[r][w] < Thresh2:
-            #     buz1[x][y] = 1
-            #     #im[r][w] = 1
-            # else:
-            #     buz1[x][y] = 0
-            # # buzz 2
-            # if im[r][w] > Thresh1 and im[r][w] < Thresh2:
-            #     im[r][w] = 1
-            # else:
-            #     im[r][w] = 0
-            # # buzz 3
-            # if im[r][w] > Thresh1 and im[r][w] < Thresh2:
-            #     im[r][w] = 1
-            # else:
-            #     im[r][w] = 0
-            
 
-    # for r in range(0,424,3):
-    #     for w in range(0,170,3):
-    #         if im[r][w] > Thresh1 and im[r][w] < Thresh2:
-    #             im[r][w] = 1
-
-    #             # im[r][w+1] = 1
-    #             # im[r][w+2] = 1
-    #             # im[r+1][w] = 1
-    #             # im[r+1][w+1] = 1
-    #             # im[r+1][w+2] = 1
-    #             # im[r+2][w] = 1
-    #             # im[r+2][w+1] = 1
-    #             # im[r+2][w+2] = 1
-    #         else:
-    #             im[r][w] = 0
     #cv2.imshow("MAINWINDOW",Win)
-    cv2.imshow("poop", im)
+    #cv2.imshow("im", im)
+    
+    cv2.imshow("realPOOP",poop)
+    #write_im = cv2.imread(poop,0)
+    if saving_frame:
+        cv2.imwrite("Frames7/"+str(imCount)+'.jpg',poop*255)
+        imCount += 1
+        #print("saving frame",imCount)
+    #cv2.imshow("Range",Range)
     cv2.imshow("b1",buz1)
     cv2.imshow("b2",buz2)
     cv2.imshow("b3",buz3)
+
+    #imCount+=1
+    #cv2.imshow("keypts", im_key)
     s = cv2.waitKey(delay =1)
     if s == ord('s'):
-        with open('image.data',"w+") as f:
+        #saving_frame = True
 
-            im = depth.asarray(dtype =np.float32)
-           
-            # f.write(f"h = {len(im)} , w = {len(im[1])}\n")
-            #for i in  im:
-            #    f.write(str(i) + "\n")
-                #print(i)
-           #f.write("---------------\n")
-            imC = color.asarray()
-            # f.write(f"h = {len(imC)} , w = {len(imC[1])}\n")
-            # for i in imC:
-            #     f.write(str(i) + "\n")
-            #      #print(i)
-            #print(len(im),len(im[1]))
-        # print(im)
-        Thresh1 = 300
-        Thresh2 = 500
-
-        
-        for r in range(424):
-            for w in range(512):
-                if im[r][w] > Thresh1 and im[r][w] < Thresh2:
-                    im[r][w] = 203
-                else:
-                    im[r][w] = 0
-
-                    
-            
-
-            # print(r)
-            #for w in r:
-             #   print(w)
+        if not saving_frame :
+            saving_frame = True
+            print("Recording")
+        else:
+            saving_frame = False
+            print("Done Recording")
        
-        cv2.imshow("saved",im / 4500 )
-        cv2.imshow("changed",im/4500)
-        
-        #cv2.imshow("saved2",imC)
-        #print(color.asarray())
-        
 
     listener.release(frames)
 
@@ -220,7 +342,9 @@ while True:
     if key == ord('q'):
         break
 
-
+p1.stop()
+p2.stop()
+GPIO.cleanup()
 device.stop()
 device.close()
 
